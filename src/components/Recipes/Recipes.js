@@ -7,23 +7,24 @@ import useDebounce from "../CustomHooks/Debounce/Debounce";
 const Recipes = () => {
   const [recipesData, setRecipesData] = useState({
     totalPages: null,
-    currentPage: null,
     recipes: [],
   });
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [error, setError] = useState();
+
   const [enteredFilter, setEnteredFilter] = useState("");
 
-  const debouncedSearchTerm = useDebounce(enteredFilter, 1000);
+  const debouncedSearchTerm = useDebounce(enteredFilter, 500);
 
   useEffect(() => {
-    fetchRecipes();
+    fetchRecipes(currentPage);
     if (debouncedSearchTerm.length) {
       fetchRecipes();
     }
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, currentPage]);
 
-  const fetchRecipes = (currentPage = 1) => {
+  const fetchRecipes = (currentPage) => {
     const currentPageString = `?page=${currentPage}`;
     const query = enteredFilter.length === 0 ? "" : `&search=${enteredFilter}`;
     axios
@@ -32,10 +33,10 @@ const Recipes = () => {
       .then((response) => {
         const { currentPage, totalPages, recipes } = response.data;
         setRecipesData({
-          currentPage,
           totalPages,
           recipes,
         });
+        setCurrentPage(currentPage);
       })
       .catch((error) => {
         setError("Something went wrong!");
@@ -50,15 +51,15 @@ const Recipes = () => {
       }
 
       return pagesArray.map((el) => (
-        <div onClick={() => fetchNewPage(el)} key={el} className="pagination">
+        <div onClick={() => setCurrentPage(el)} key={el} className="pagination">
           {el}
         </div>
       ));
     }
   };
-  const fetchNewPage = (pageId) => {
-    fetchRecipes(pageId);
-  };
+  // const fetchNewPage = (pageId) => {
+  //   fetchRecipes(pageId);
+  // };
   const removeRecipe = (id) => {
     axios.delete(`http://localhost:8081/recipes/${id}`).then((response) => {
       setTimeout(() => {
@@ -105,3 +106,6 @@ const Recipes = () => {
 };
 
 export default Recipes;
+// razdvojiti sve u komponente
+// lazy scroll
+// umesto then koristiti await
