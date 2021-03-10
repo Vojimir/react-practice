@@ -1,6 +1,7 @@
 import "./Recipes.css";
 import React, { useState, useEffect, useRef } from "react";
 import ErrorModal from "../../UI/ErrorModal/ErrorModal";
+import axios from "axios";
 
 const Recipes = () => {
   const [recipesData, setRecipesData] = useState({
@@ -26,12 +27,11 @@ const Recipes = () => {
   const fetchRecipes = (currentPage = 1) => {
     const currentPageString = `?page=${currentPage}`;
     const query = enteredFilter.length === 0 ? "" : `&search=${enteredFilter}`;
-    fetch(`http://localhost:8081/recipes${currentPageString}${query}`)
-      .then((response) => response.json())
+    axios
+      .get(`http://localhost:8081/recipes${currentPageString}${query}`)
 
-      //parsovati
-      .then((data) => {
-        const { currentPage, totalPages, recipes } = data;
+      .then((response) => {
+        const { currentPage, totalPages, recipes } = response.data;
         setRecipesData({
           currentPage,
           totalPages,
@@ -61,9 +61,7 @@ const Recipes = () => {
     fetchRecipes(pageId);
   };
   const removeRecipe = (id) => {
-    fetch(`http://localhost:8081/recipes/${id}`, {
-      method: "DELETE",
-    }).then((response) => {
+    axios.delete(`http://localhost:8081/recipes/${id}`).then((response) => {
       setTimeout(() => {
         fetchRecipes(recipesData.currentPage);
       }, 200);
