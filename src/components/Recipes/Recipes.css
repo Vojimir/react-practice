@@ -84,6 +84,7 @@ p {
   font-size: 25px;
   color: #c04131;
 }
+/* kako da ostanu ova podesavanja dok god sam na toj stranici */
 .pagination:active {
   background-color: #c04131;
   color: white;

@@ -1,19 +1,16 @@
 import "./Recipes.css";
 import React, { useState, useEffect, useRef } from "react";
-import Spinner from "../../UI/Spinner/Spinner";
 import ErrorModal from "../../UI/ErrorModal/ErrorModal";
 
-//Da li je ok da setujem 3 property-ja dojednom zbog prirode useStejta ?
 const Recipes = () => {
-  const [recipes, setRecipes] = useState({
+  const [recipesData, setRecipesData] = useState({
     totalPages: null,
-    currenPage: null,
-    recipes: null,
+    currentPage: null,
+    recipes: [],
   });
-  const [isLoading, setIsLoading] = useState(false);
+
   const [error, setError] = useState();
   const [enteredFilter, setEnteredFilter] = useState("");
-
   const inputRef = useRef();
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -31,11 +28,14 @@ const Recipes = () => {
     const query = enteredFilter.length === 0 ? "" : `&search=${enteredFilter}`;
     fetch(`http://localhost:8081/recipes${currentPageString}${query}`)
       .then((response) => response.json())
+
+      //parsovati
       .then((data) => {
-        setRecipes({
-          currenPage: Object.values(data)[0],
-          totalPages: Object.values(data)[1],
-          recipes: Object.values(data)[2],
+        const { currentPage, totalPages, recipes } = data;
+        setRecipesData({
+          currentPage,
+          totalPages,
+          recipes,
         });
       })
       .catch((error) => {
@@ -43,7 +43,7 @@ const Recipes = () => {
       });
   };
 
-  const paginate = (pages = recipes.totalPages) => {
+  const paginate = (pages = recipesData.totalPages) => {
     let pagesArray = [];
     if (pages >= 1) {
       for (let index = 1; index <= pages; index++) {
@@ -60,12 +60,13 @@ const Recipes = () => {
   const fetchNewPage = (pageId) => {
     fetchRecipes(pageId);
   };
-  //DA LI U OVOJ METODI MOGU OVAKO DA PONOVO POZIVAM FETCHRECIPES? IMA DA , IMA LI EFIKASNIJE RESENJE?
   const removeRecipe = (id) => {
     fetch(`http://localhost:8081/recipes/${id}`, {
       method: "DELETE",
     }).then((response) => {
-      fetchRecipes(recipes.currenPage);
+      setTimeout(() => {
+        fetchRecipes(recipesData.currentPage);
+      }, 200);
     });
   };
 
@@ -74,10 +75,9 @@ const Recipes = () => {
   };
 
   return (
-    <React.Fragment>
+    <>
       {error && <ErrorModal onClose={clearErrors}>{error}</ErrorModal>}
       <div className="mainContainer">
-        <Spinner show={isLoading} />
         <div className="recipesContainerMain">
           <h1>Recipes overview</h1>
           <input
@@ -86,25 +86,25 @@ const Recipes = () => {
             onChange={(event) => setEnteredFilter(event.target.value)}
             placeholder="Search recipes"
           ></input>
-          {recipes.recipes
-            ? Object.keys(recipes.recipes).map((el) => (
-                <div key={recipes.recipes[el].id} className="recipeContainer">
-                  <button
-                    className="deleteButton"
-                    onClick={() => removeRecipe(recipes.recipes[el].id)}
-                  >
-                    Delete
-                  </button>
-                  <h2>{recipes.recipes[el].title}</h2>
-
-                  <p>{recipes.recipes[el].description}</p>
-                </div>
-              ))
-            : null}
+          {recipesData.recipes.map((el) => {
+            const { id, title, description } = el;
+            return (
+              <div key={id} className="recipeContainer">
+                <button
+                  className="deleteButton"
+                  onClick={() => removeRecipe(id)}
+                >
+                  Delete
+                </button>
+                <h2>{title}</h2>
+                <p>{description}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
       <div className="paginationWrapper">{paginate()}</div>
-    </React.Fragment>
+    </>
   );
 };
 
