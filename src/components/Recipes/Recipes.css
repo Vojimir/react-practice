@@ -1,0 +1,90 @@
+body {
+  margin: 0px;
+}
+.mainContainer {
+  width: 35rem;
+  margin: 2rem auto;
+  max-width: 80%;
+}
+.recipesContainerMain {
+  width: 80%;
+
+  margin: auto;
+}
+.recipesContainerMain h1 {
+  text-align: left;
+}
+.recipesContainerMain input {
+  align-self: left;
+  padding: 0.1rem 0.25rem;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  margin-bottom: 1rem;
+}
+.recipesContainerMain input:focus {
+  outline: none;
+  border-bottom-color: #dd4b39;
+}
+.recipeContainer {
+  border-bottom: 3px solid #ccc;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.26);
+  margin-bottom: 15px;
+}
+.deleteButton {
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 1px 0 #c04131;
+  border: 1px solid;
+  outline: none;
+  padding: 5px 10px;
+  border-radius: 2px;
+  border-color: #dd4b39;
+  float: right;
+  background-image: linear-gradient(#dd4b39, #d14836);
+  margin-top: 10px;
+  margin-right: 10px;
+}
+.deleteButton:hover {
+  background-image: linear-gradient(#dd4b39, #c53727);
+  border-color: #af301f;
+}
+.deleteButton:active {
+  background-image: linear-gradient(#d74736, #ad2719);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+h2,
+p {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.paginationWrapper {
+  width: 100%;
+  margin: auto;
+  text-align: center;
+  bottom: 0;
+  position: fixed;
+}
+.pagination {
+  text-align: center;
+  border: 1px solid #c04131;
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+  border-radius: 35px;
+  margin: 35px 10px;
+  line-height: 33px;
+  cursor: pointer;
+  justify-content: space-between;
+  font-size: 25px;
+  color: #c04131;
+}
+.pagination:active {
+  background-color: #c04131;
+  color: white;
+}
