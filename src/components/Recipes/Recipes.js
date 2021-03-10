@@ -1,7 +1,8 @@
 import "./Recipes.css";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import ErrorModal from "../../UI/ErrorModal/ErrorModal";
 import axios from "axios";
+import useDebounce from "../CustomHooks/Debounce/Debounce";
 
 const Recipes = () => {
   const [recipesData, setRecipesData] = useState({
@@ -12,17 +13,15 @@ const Recipes = () => {
 
   const [error, setError] = useState();
   const [enteredFilter, setEnteredFilter] = useState("");
-  const inputRef = useRef();
+
+  const debouncedSearchTerm = useDebounce(enteredFilter, 1000);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (enteredFilter === inputRef.current.value) {
-        fetchRecipes();
-      }
-    }, 500);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [enteredFilter, inputRef]);
+    fetchRecipes();
+    if (debouncedSearchTerm.length) {
+      fetchRecipes();
+    }
+  }, [debouncedSearchTerm]);
 
   const fetchRecipes = (currentPage = 1) => {
     const currentPageString = `?page=${currentPage}`;
@@ -79,7 +78,6 @@ const Recipes = () => {
         <div className="recipesContainerMain">
           <h1>Recipes overview</h1>
           <input
-            ref={inputRef}
             value={enteredFilter}
             onChange={(event) => setEnteredFilter(event.target.value)}
             placeholder="Search recipes"
