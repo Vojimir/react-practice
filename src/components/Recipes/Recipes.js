@@ -1,8 +1,9 @@
 import "./Recipes.css";
 import React, { useState, useEffect } from "react";
 import ErrorModal from "../../UI/ErrorModal/ErrorModal";
-import axios from "axios";
+import axios from "../../axiosDefault";
 import useDebounce from "../CustomHooks/Debounce/Debounce";
+import Recipe from "../Recipes/Recipe/Recipe";
 
 const Recipes = () => {
   const [recipesData, setRecipesData] = useState({
@@ -18,38 +19,34 @@ const Recipes = () => {
   const debouncedSearchTerm = useDebounce(enteredFilter, 500);
 
   useEffect(() => {
-    fetchRecipes(currentPage);
+    fetchRecipes(currentPage, enteredFilter);
     if (debouncedSearchTerm.length) {
       fetchRecipes();
     }
   }, [debouncedSearchTerm, currentPage]);
 
-  const fetchRecipes = (currentPage) => {
-    const currentPageString = `?page=${currentPage}`;
-    const query = enteredFilter.length === 0 ? "" : `&search=${enteredFilter}`;
-    axios
-      .get(`http://localhost:8081/recipes${currentPageString}${query}`)
+  const fetchRecipes = async (currentPage, enteredFilter) => {
+    try {
+      const query =
+        enteredFilter.length === 0 ? "" : `&search=${enteredFilter}`;
+      const response = await axios.get(`/recipes?page=${currentPage}${query}`);
+      const data = await response.data;
 
-      .then((response) => {
-        const { currentPage, totalPages, recipes } = response.data;
-        setRecipesData({
-          totalPages,
-          recipes,
-        });
-        setCurrentPage(currentPage);
-      })
-      .catch((error) => {
-        setError("Something went wrong!");
+      setRecipesData({
+        totalPages: data.totalPages,
+        recipes: data.recipes,
       });
+      setCurrentPage(data.currentPage);
+    } catch (error) {
+      setError("Something went wrong!");
+    }
   };
-
   const paginate = (pages = recipesData.totalPages) => {
     let pagesArray = [];
     if (pages >= 1) {
       for (let index = 1; index <= pages; index++) {
         pagesArray.push(index);
       }
-
       return pagesArray.map((el) => (
         <div onClick={() => setCurrentPage(el)} key={el} className="pagination">
           {el}
@@ -57,13 +54,11 @@ const Recipes = () => {
       ));
     }
   };
-  // const fetchNewPage = (pageId) => {
-  //   fetchRecipes(pageId);
-  // };
+
   const removeRecipe = (id) => {
-    axios.delete(`http://localhost:8081/recipes/${id}`).then((response) => {
+    axios.delete(`/recipes/${id}`).then((response) => {
       setTimeout(() => {
-        fetchRecipes(recipesData.currentPage);
+        fetchRecipes(currentPage);
       }, 200);
     });
   };
@@ -86,16 +81,12 @@ const Recipes = () => {
           {recipesData.recipes.map((el) => {
             const { id, title, description } = el;
             return (
-              <div key={id} className="recipeContainer">
-                <button
-                  className="deleteButton"
-                  onClick={() => removeRecipe(id)}
-                >
-                  Delete
-                </button>
-                <h2>{title}</h2>
-                <p>{description}</p>
-              </div>
+              <Recipe
+                key={id}
+                title={title}
+                description={description}
+                clicked={() => removeRecipe(id)}
+              />
             );
           })}
         </div>
@@ -106,6 +97,3 @@ const Recipes = () => {
 };
 
 export default Recipes;
-// razdvojiti sve u komponente
-// lazy scroll
-// umesto then koristiti await
