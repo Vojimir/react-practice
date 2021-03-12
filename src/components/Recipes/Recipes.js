@@ -21,15 +21,15 @@ const Recipes = () => {
   useEffect(() => {
     fetchRecipes(currentPage, enteredFilter);
     if (debouncedSearchTerm.length) {
-      fetchRecipes();
+      fetchRecipes(currentPage, enteredFilter);
     }
   }, [debouncedSearchTerm, currentPage]);
 
-  const fetchRecipes = async (currentPage, enteredFilter) => {
+  const fetchRecipes = async (Page = currentPage, enteredFilter = "") => {
     try {
       const query =
         enteredFilter.length === 0 ? "" : `&search=${enteredFilter}`;
-      const response = await axios.get(`/recipes?page=${currentPage}${query}`);
+      const response = await axios.get(`/recipes?page=${Page}${query}`);
       const data = await response.data;
 
       setRecipesData({
